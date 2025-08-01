@@ -1,0 +1,285 @@
+# capacitor-meta-ads
+
+Capacitor plugin for Meta Audience Network ads integration with support for rewarded video and interstitial ads.
+
+## Features
+
+- ✅ **Rewarded Video Ads** - Show rewarded video ads and handle rewards
+- ✅ **Interstitial Ads** - Display full-screen interstitial ads
+- ✅ **Test Mode Support** - Easy testing with Meta's test ads
+- ✅ **Event Callbacks** - Comprehensive ad lifecycle events
+- ✅ **Android Support** - Full Android implementation
+- 🔄 **iOS Support** - Coming soon
+
+## Install
+
+```bash
+npm install capacitor-meta-ads
+npx cap sync
+```
+
+## Configuration
+
+### Android
+
+Add your Meta App ID to your `android/app/src/main/AndroidManifest.xml`:
+
+```xml
+<application>
+    <!-- Meta Audience Network App ID -->
+    <meta-data
+        android:name="com.facebook.sdk.ApplicationId"
+        android:value="YOUR_META_APP_ID" />
+</application>
+```
+
+## Usage
+
+### Initialize the SDK
+
+```typescript
+import { MetaAds } from 'capacitor-meta-ads';
+
+// Initialize with your Meta App ID
+await MetaAds.initialize({
+  appId: 'YOUR_META_APP_ID',
+  testMode: true, // Set to false in production
+});
+```
+
+### Rewarded Video Ads
+
+```typescript
+// Load a rewarded video ad
+await MetaAds.loadRewardedVideo({
+  placementId: 'YOUR_REWARDED_PLACEMENT_ID',
+});
+
+// Check if ad is loaded
+const { loaded } = await MetaAds.isRewardedVideoLoaded();
+
+if (loaded) {
+  // Show the ad
+  const result = await MetaAds.showRewardedVideo();
+
+  if (result.success && result.reward) {
+    console.log('Reward earned:', result.reward);
+    // Give reward to user
+  }
+}
+```
+
+### Interstitial Ads
+
+```typescript
+// Load an interstitial ad
+await MetaAds.loadInterstitial({
+  placementId: 'YOUR_INTERSTITIAL_PLACEMENT_ID',
+});
+
+// Check if ad is loaded
+const { loaded } = await MetaAds.isInterstitialLoaded();
+
+if (loaded) {
+  // Show the ad
+  const result = await MetaAds.showInterstitial();
+
+  if (result.success) {
+    console.log('Interstitial ad shown successfully');
+  }
+}
+```
+
+### Test Mode
+
+```typescript
+// Enable test mode (should be done before initialize)
+await MetaAds.setTestMode({ enabled: true });
+
+// Add test device
+await MetaAds.addTestDevice({ deviceId: 'YOUR_TEST_DEVICE_ID' });
+```
+
+## Test Placement IDs
+
+For testing, use Meta's test placement IDs:
+
+- **Rewarded Video**: `VID_HD_16_9_46S_APP_INSTALL#YOUR_PLACEMENT_ID`
+- **Interstitial**: `IMG_16_9_APP_INSTALL#YOUR_PLACEMENT_ID`
+
+## API
+
+<docgen-index>
+
+* [`initialize(...)`](#initialize)
+* [`loadRewardedVideo(...)`](#loadrewardedvideo)
+* [`showRewardedVideo()`](#showrewardedvideo)
+* [`isRewardedVideoLoaded()`](#isrewardedvideoloaded)
+* [`loadInterstitial(...)`](#loadinterstitial)
+* [`showInterstitial()`](#showinterstitial)
+* [`isInterstitialLoaded()`](#isinterstitialloaded)
+* [`setTestMode(...)`](#settestmode)
+* [`addTestDevice(...)`](#addtestdevice)
+* [Interfaces](#interfaces)
+
+</docgen-index>
+
+<docgen-api>
+<!--Update the source file JSDoc comments and rerun docgen to update the docs below-->
+
+### initialize(...)
+
+```typescript
+initialize(options: { appId: string; testMode?: boolean; }) => Promise<void>
+```
+
+Initialize Meta Audience Network SDK
+
+| Param         | Type                                                |
+| ------------- | --------------------------------------------------- |
+| **`options`** | <code>{ appId: string; testMode?: boolean; }</code> |
+
+--------------------
+
+
+### loadRewardedVideo(...)
+
+```typescript
+loadRewardedVideo(options: { placementId: string; }) => Promise<void>
+```
+
+Load a rewarded video ad
+
+| Param         | Type                                  |
+| ------------- | ------------------------------------- |
+| **`options`** | <code>{ placementId: string; }</code> |
+
+--------------------
+
+
+### showRewardedVideo()
+
+```typescript
+showRewardedVideo() => Promise<{ success: boolean; reward?: RewardInfo; }>
+```
+
+Show a rewarded video ad
+
+**Returns:** <code>Promise&lt;{ success: boolean; reward?: <a href="#rewardinfo">RewardInfo</a>; }&gt;</code>
+
+--------------------
+
+
+### isRewardedVideoLoaded()
+
+```typescript
+isRewardedVideoLoaded() => Promise<{ loaded: boolean; }>
+```
+
+Check if rewarded video ad is loaded
+
+**Returns:** <code>Promise&lt;{ loaded: boolean; }&gt;</code>
+
+--------------------
+
+
+### loadInterstitial(...)
+
+```typescript
+loadInterstitial(options: { placementId: string; }) => Promise<void>
+```
+
+Load an interstitial ad
+
+| Param         | Type                                  |
+| ------------- | ------------------------------------- |
+| **`options`** | <code>{ placementId: string; }</code> |
+
+--------------------
+
+
+### showInterstitial()
+
+```typescript
+showInterstitial() => Promise<{ success: boolean; }>
+```
+
+Show an interstitial ad
+
+**Returns:** <code>Promise&lt;{ success: boolean; }&gt;</code>
+
+--------------------
+
+
+### isInterstitialLoaded()
+
+```typescript
+isInterstitialLoaded() => Promise<{ loaded: boolean; }>
+```
+
+Check if interstitial ad is loaded
+
+**Returns:** <code>Promise&lt;{ loaded: boolean; }&gt;</code>
+
+--------------------
+
+
+### setTestMode(...)
+
+```typescript
+setTestMode(options: { enabled: boolean; }) => Promise<void>
+```
+
+Set test mode
+
+| Param         | Type                               |
+| ------------- | ---------------------------------- |
+| **`options`** | <code>{ enabled: boolean; }</code> |
+
+--------------------
+
+
+### addTestDevice(...)
+
+```typescript
+addTestDevice(options: { deviceId: string; }) => Promise<void>
+```
+
+Add test device
+
+| Param         | Type                               |
+| ------------- | ---------------------------------- |
+| **`options`** | <code>{ deviceId: string; }</code> |
+
+--------------------
+
+
+### Interfaces
+
+
+#### RewardInfo
+
+| Prop         | Type                |
+| ------------ | ------------------- |
+| **`type`**   | <code>string</code> |
+| **`amount`** | <code>number</code> |
+
+</docgen-api>
+
+## Requirements
+
+- **Android**: API level 23+ (Android 6.0+)
+- **Meta Audience Network SDK**: 6.17.0+
+- **Capacitor**: 7.0.0+
+
+## Related Plugin
+
+For Unity Ads integration, check out our companion plugin:
+
+- **Unity Ads Plugin**: [capacitor-unity-ads](https://github.com/eliazv/capacitor-unity-ads)
+
+Use both plugins together with AdMob mediation for maximum revenue!
+
+## License
+
+MIT
