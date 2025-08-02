@@ -9,7 +9,8 @@ Capacitor plugin for Meta Audience Network ads integration with support for rewa
 - ✅ **Test Mode Support** - Easy testing with Meta's test ads
 - ✅ **Event Callbacks** - Comprehensive ad lifecycle events
 - ✅ **Android Support** - Full Android implementation
-- 🔄 **iOS Support** - Coming soon
+- ✅ **iOS Support** - Full iOS implementation with Meta Audience Network SDK
+- ✅ **AdMob Mediation** - Compatible with AdMob mediation (bidding only)
 
 ## Install
 
@@ -20,9 +21,9 @@ npx cap sync
 
 ## Configuration
 
-### Android
+### Android Setup
 
-Add your Meta App ID to your `android/app/src/main/AndroidManifest.xml`:
+1. **Add Meta App ID** to your `android/app/src/main/AndroidManifest.xml`:
 
 ```xml
 <application>
@@ -32,6 +33,27 @@ Add your Meta App ID to your `android/app/src/main/AndroidManifest.xml`:
         android:value="YOUR_META_APP_ID" />
 </application>
 ```
+
+2. **For AdMob Mediation** (optional - for maximum revenue):
+   - Add AdMob mediation dependency: `implementation 'com.google.ads.mediation:facebook:6.11.0.1'`
+   - Configure Meta as bidding source in AdMob console
+   - Use AdMob ad units instead of direct Meta placement IDs
+
+### iOS Setup
+
+1. **Add Meta App ID** to your `ios/App/App/Info.plist`:
+
+```xml
+<key>FacebookAppID</key>
+<string>YOUR_META_APP_ID</string>
+<key>FacebookClientToken</key>
+<string>YOUR_CLIENT_TOKEN</string>
+```
+
+2. **For AdMob Mediation** (optional):
+   - Add AdMob mediation dependency in your Podfile
+   - Configure Meta as bidding source in AdMob console
+   - Use AdMob ad units instead of direct Meta placement IDs
 
 ## Usage
 
@@ -106,6 +128,11 @@ For testing, use Meta's test placement IDs:
 
 - **Rewarded Video**: `VID_HD_16_9_46S_APP_INSTALL#YOUR_PLACEMENT_ID`
 - **Interstitial**: `IMG_16_9_APP_INSTALL#YOUR_PLACEMENT_ID`
+
+**For AdMob Mediation Testing:**
+- Use AdMob test ad unit IDs
+- Enable test mode in both AdMob and Meta consoles
+- Register your test device in both platforms
 
 ## API
 
@@ -271,6 +298,21 @@ Add test device
 - **Android**: API level 23+ (Android 6.0+)
 - **Meta Audience Network SDK**: 6.17.0+
 - **Capacitor**: 7.0.0+
+- **iOS**: iOS 14.0+
+
+## AdMob Mediation Support
+
+✅ **Fully Compatible** - This plugin works with AdMob mediation:
+- Meta Audience Network operates as **bidding-only** partner (no waterfall)
+- Increases revenue through real-time bidding competition
+- Improves fill rates across your ad inventory
+- Configure in AdMob console, not directly in app code
+
+**Setup Steps:**
+1. Add mediation dependency to `android/build.gradle`
+2. Create mediation group in AdMob console
+3. Add Meta as bidding source
+4. Use AdMob ad unit IDs in your app
 
 ## Related Plugin
 

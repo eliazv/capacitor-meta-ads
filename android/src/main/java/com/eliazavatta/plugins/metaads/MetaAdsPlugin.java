@@ -21,17 +21,22 @@ public class MetaAdsPlugin extends Plugin {
             return;
         }
 
-        implementation.initialize(getContext(), appId, testMode, new MetaAds.InitializationCallback() {
-            @Override
-            public void onSuccess() {
-                call.resolve();
-            }
+        implementation.initialize(
+            getContext(),
+            appId,
+            testMode,
+            new MetaAds.InitializationCallback() {
+                @Override
+                public void onSuccess() {
+                    call.resolve();
+                }
 
-            @Override
-            public void onError(String error) {
-                call.reject(error);
+                @Override
+                public void onError(String error) {
+                    call.reject(error);
+                }
             }
-        });
+        );
     }
 
     @PluginMethod
@@ -43,51 +48,57 @@ public class MetaAdsPlugin extends Plugin {
             return;
         }
 
-        implementation.loadRewardedVideo(placementId, new MetaAds.AdLoadCallback() {
-            @Override
-            public void onAdLoaded() {
-                call.resolve();
-            }
+        implementation.loadRewardedVideo(
+            getContext(),
+            placementId,
+            new MetaAds.AdLoadCallback() {
+                @Override
+                public void onAdLoaded() {
+                    call.resolve();
+                }
 
-            @Override
-            public void onError(String error) {
-                call.reject(error);
+                @Override
+                public void onError(String error) {
+                    call.reject(error);
+                }
             }
-        });
+        );
     }
 
     @PluginMethod
     public void showRewardedVideo(PluginCall call) {
-        implementation.showRewardedVideo(new MetaAds.RewardedVideoCallback() {
-            @Override
-            public void onAdShown() {
-                // Ad shown successfully
-            }
+        implementation.showRewardedVideo(
+            new MetaAds.RewardedVideoCallback() {
+                @Override
+                public void onAdShown() {
+                    // Ad shown successfully
+                }
 
-            @Override
-            public void onRewardEarned(String rewardType, int rewardAmount) {
-                JSObject ret = new JSObject();
-                ret.put("success", true);
-                JSObject reward = new JSObject();
-                reward.put("type", rewardType);
-                reward.put("amount", rewardAmount);
-                ret.put("reward", reward);
-                call.resolve(ret);
-            }
+                @Override
+                public void onRewardEarned(String rewardType, int rewardAmount) {
+                    JSObject ret = new JSObject();
+                    ret.put("success", true);
+                    JSObject reward = new JSObject();
+                    reward.put("type", rewardType);
+                    reward.put("amount", rewardAmount);
+                    ret.put("reward", reward);
+                    call.resolve(ret);
+                }
 
-            @Override
-            public void onAdClosed() {
-                // Ad closed without reward
-                JSObject ret = new JSObject();
-                ret.put("success", false);
-                call.resolve(ret);
-            }
+                @Override
+                public void onAdClosed() {
+                    // Ad closed without reward
+                    JSObject ret = new JSObject();
+                    ret.put("success", false);
+                    call.resolve(ret);
+                }
 
-            @Override
-            public void onError(String error) {
-                call.reject(error);
+                @Override
+                public void onError(String error) {
+                    call.reject(error);
+                }
             }
-        });
+        );
     }
 
     @PluginMethod
@@ -107,39 +118,45 @@ public class MetaAdsPlugin extends Plugin {
             return;
         }
 
-        implementation.loadInterstitial(placementId, new MetaAds.AdLoadCallback() {
-            @Override
-            public void onAdLoaded() {
-                call.resolve();
-            }
+        implementation.loadInterstitial(
+            getContext(),
+            placementId,
+            new MetaAds.AdLoadCallback() {
+                @Override
+                public void onAdLoaded() {
+                    call.resolve();
+                }
 
-            @Override
-            public void onError(String error) {
-                call.reject(error);
+                @Override
+                public void onError(String error) {
+                    call.reject(error);
+                }
             }
-        });
+        );
     }
 
     @PluginMethod
     public void showInterstitial(PluginCall call) {
-        implementation.showInterstitial(new MetaAds.InterstitialCallback() {
-            @Override
-            public void onAdShown() {
-                JSObject ret = new JSObject();
-                ret.put("success", true);
-                call.resolve(ret);
-            }
+        implementation.showInterstitial(
+            new MetaAds.InterstitialCallback() {
+                @Override
+                public void onAdShown() {
+                    JSObject ret = new JSObject();
+                    ret.put("success", true);
+                    call.resolve(ret);
+                }
 
-            @Override
-            public void onAdClosed() {
-                // Ad closed
-            }
+                @Override
+                public void onAdClosed() {
+                    // Ad closed
+                }
 
-            @Override
-            public void onError(String error) {
-                call.reject(error);
+                @Override
+                public void onError(String error) {
+                    call.reject(error);
+                }
             }
-        });
+        );
     }
 
     @PluginMethod

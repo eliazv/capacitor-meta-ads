@@ -1,6 +1,6 @@
 {
   "name": "capacitor-meta-ads",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Capacitor plugin for Meta Audience Network ads integration with support for rewarded video and interstitial ads",
   "main": "dist/plugin.cjs.js",
   "module": "dist/esm/index.js",
@@ -9,21 +9,31 @@
   "files": [
     "android/src/main/",
     "android/build.gradle",
+    "android/gradle.properties",
+    "android/settings.gradle",
+    "android/proguard-rules.pro",
+    "android/gradlew",
+    "android/gradlew.bat",
+    "android/gradle/",
     "dist/",
     "ios/Sources",
-    "ios/Tests",
     "Package.swift",
-    "CapacitorMetaAds.podspec"
+    "CapacitorMetaAds.podspec",
+    "README.md",
+    "CONTRIBUTING.md",
+    "TROUBLESHOOTING.md",
+    "EXAMPLE_USAGE.md"
   ],
   "author": "eliazavatta",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/eliazv/capacitor-unity-ads.git"
+    "url": "git+https://github.com/eliazv/capacitor-meta-ads.git"
   },
   "bugs": {
-    "url": "https://github.com/eliazv/capacitor-unity-ads/issues"
+    "url": "https://github.com/eliazv/capacitor-meta-ads/issues"
   },
+  "homepage": "https://github.com/eliazv/capacitor-meta-ads#readme",
   "keywords": [
     "capacitor",
     "plugin",

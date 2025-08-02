@@ -51,9 +51,16 @@ export interface RewardInfo {
 }
 
 export interface MetaAdsEvent {
-  type: 'initialized' | 'rewardedVideoLoaded' | 'rewardedVideoFailedToLoad' |
-        'rewardedVideoShown' | 'rewardedVideoCompleted' | 'rewardedVideoClosed' |
-        'interstitialLoaded' | 'interstitialFailedToLoad' | 'interstitialShown' |
-        'interstitialClosed';
+  type:
+    | 'initialized'
+    | 'rewardedVideoLoaded'
+    | 'rewardedVideoFailedToLoad'
+    | 'rewardedVideoShown'
+    | 'rewardedVideoCompleted'
+    | 'rewardedVideoClosed'
+    | 'interstitialLoaded'
+    | 'interstitialFailedToLoad'
+    | 'interstitialShown'
+    | 'interstitialClosed';
   data?: any;
 }

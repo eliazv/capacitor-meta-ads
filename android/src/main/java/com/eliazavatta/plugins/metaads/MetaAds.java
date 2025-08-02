@@ -2,20 +2,19 @@ package com.eliazavatta.plugins.metaads;
 
 import android.content.Context;
 import android.util.Log;
-
 import com.facebook.ads.Ad;
 import com.facebook.ads.AdError;
+import com.facebook.ads.AdSettings;
 import com.facebook.ads.AudienceNetworkAds;
 import com.facebook.ads.InterstitialAd;
 import com.facebook.ads.InterstitialAdListener;
 import com.facebook.ads.RewardedVideoAd;
 import com.facebook.ads.RewardedVideoAdListener;
-import com.facebook.ads.AdSettings;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class MetaAds {
+
     private static final String TAG = "MetaAds";
 
     private RewardedVideoAd rewardedVideoAd;
@@ -69,14 +68,13 @@ public class MetaAds {
             isInitialized = true;
             Log.d(TAG, "Meta Audience Network initialized successfully");
             callback.onSuccess();
-
         } catch (Exception e) {
             Log.e(TAG, "Failed to initialize Meta Audience Network", e);
             callback.onError("Initialization failed: " + e.getMessage());
         }
     }
 
-    public void loadRewardedVideo(String placementId, AdLoadCallback callback) {
+    public void loadRewardedVideo(Context context, String placementId, AdLoadCallback callback) {
         if (!isInitialized) {
             callback.onError("Meta Audience Network not initialized");
             return;
@@ -85,7 +83,7 @@ public class MetaAds {
         try {
             Log.d(TAG, "Loading rewarded video with placement ID: " + placementId);
 
-            rewardedVideoAd = new RewardedVideoAd(null, placementId);
+            rewardedVideoAd = new RewardedVideoAd(context, placementId);
 
             RewardedVideoAdListener rewardedVideoAdListener = new RewardedVideoAdListener() {
                 @Override
@@ -121,12 +119,7 @@ public class MetaAds {
                 }
             };
 
-            rewardedVideoAd.loadAd(
-                rewardedVideoAd.buildLoadAdConfig()
-                    .withAdListener(rewardedVideoAdListener)
-                    .build()
-            );
-
+            rewardedVideoAd.loadAd(rewardedVideoAd.buildLoadAdConfig().withAdListener(rewardedVideoAdListener).build());
         } catch (Exception e) {
             Log.e(TAG, "Error loading rewarded video", e);
             callback.onError("Error loading rewarded video: " + e.getMessage());
@@ -179,7 +172,6 @@ public class MetaAds {
             };
 
             rewardedVideoAd.show();
-
         } catch (Exception e) {
             Log.e(TAG, "Error showing rewarded video", e);
             callback.onError("Error showing rewarded video: " + e.getMessage());
@@ -190,7 +182,7 @@ public class MetaAds {
         return rewardedVideoAd != null && rewardedVideoAd.isAdLoaded();
     }
 
-    public void loadInterstitial(String placementId, AdLoadCallback callback) {
+    public void loadInterstitial(Context context, String placementId, AdLoadCallback callback) {
         if (!isInitialized) {
             callback.onError("Meta Audience Network not initialized");
             return;
@@ -199,7 +191,7 @@ public class MetaAds {
         try {
             Log.d(TAG, "Loading interstitial with placement ID: " + placementId);
 
-            interstitialAd = new InterstitialAd(null, placementId);
+            interstitialAd = new InterstitialAd(context, placementId);
 
             InterstitialAdListener interstitialAdListener = new InterstitialAdListener() {
                 @Override
@@ -235,12 +227,7 @@ public class MetaAds {
                 }
             };
 
-            interstitialAd.loadAd(
-                interstitialAd.buildLoadAdConfig()
-                    .withAdListener(interstitialAdListener)
-                    .build()
-            );
-
+            interstitialAd.loadAd(interstitialAd.buildLoadAdConfig().withAdListener(interstitialAdListener).build());
         } catch (Exception e) {
             Log.e(TAG, "Error loading interstitial", e);
             callback.onError("Error loading interstitial: " + e.getMessage());
@@ -292,7 +279,6 @@ public class MetaAds {
             };
 
             interstitialAd.show();
-
         } catch (Exception e) {
             Log.e(TAG, "Error showing interstitial", e);
             callback.onError("Error showing interstitial: " + e.getMessage());
