@@ -6,7 +6,13 @@ import FBAudienceNetwork
     private var interstitialAd: FBInterstitialAd?
     private var isInitialized = false
     private var testDevices: [String] = []
-    
+
+    // Keep strong references to delegates to prevent deallocation
+    private var rewardedVideoLoadDelegate: RewardedVideoAdDelegate?
+    private var rewardedVideoShowDelegate: RewardedVideoShowDelegate?
+    private var interstitialLoadDelegate: InterstitialAdDelegate?
+    private var interstitialShowDelegate: InterstitialShowDelegate?
+
     // Callback typealias
     public typealias InitializationCallback = (Bool, String?) -> Void
     public typealias AdLoadCallback = (Bool, String?) -> Void
@@ -14,19 +20,32 @@ import FBAudienceNetwork
     public typealias InterstitialCallback = (Bool) -> Void
     
     @objc public func initialize(appId: String, testMode: Bool, callback: @escaping InitializationCallback) {
+        // Validate app ID
+        guard !appId.isEmpty else {
+            callback(false, "App ID cannot be empty")
+            return
+        }
+
+        // Prevent multiple initializations
+        guard !isInitialized else {
+            print("MetaAds: Already initialized")
+            callback(true, nil)
+            return
+        }
+
         DispatchQueue.main.async {
             // Set test mode if enabled
             if testMode {
                 FBAdSettings.setTestMode(true)
                 print("MetaAds: Test mode enabled")
             }
-            
+
             // Add test devices if any
             if !self.testDevices.isEmpty {
                 FBAdSettings.addTestDevices(self.testDevices)
                 print("MetaAds: Added \(self.testDevices.count) test devices")
             }
-            
+
             // Initialize Audience Network
             FBAudienceNetworkAds.initialize(with: nil) { result in
                 if result.success {
@@ -47,18 +66,26 @@ import FBAudienceNetwork
             callback(false, "Meta Audience Network not initialized")
             return
         }
-        
+
+        // Validate placement ID
+        guard !placementId.isEmpty else {
+            callback(false, "Placement ID cannot be empty")
+            return
+        }
+
         DispatchQueue.main.async {
             print("MetaAds: Loading rewarded video with placement ID: \(placementId)")
-            
+
             self.rewardedVideoAd = FBRewardedVideoAd(placementID: placementId)
-            
+
             guard let rewardedVideoAd = self.rewardedVideoAd else {
                 callback(false, "Failed to create rewarded video ad")
                 return
             }
-            
-            rewardedVideoAd.delegate = RewardedVideoAdDelegate(callback: callback)
+
+            // Create and store delegate to prevent deallocation
+            self.rewardedVideoLoadDelegate = RewardedVideoAdDelegate(callback: callback)
+            rewardedVideoAd.delegate = self.rewardedVideoLoadDelegate
             rewardedVideoAd.load()
         }
     }
@@ -68,17 +95,20 @@ import FBAudienceNetwork
             callback(false, nil)
             return
         }
-        
+
         DispatchQueue.main.async {
             print("MetaAds: Showing rewarded video")
-            
-            if let rootViewController = self.getRootViewController() {
-                let showDelegate = RewardedVideoShowDelegate(callback: callback)
-                self.rewardedVideoAd?.delegate = showDelegate
-                rewardedVideoAd.show(fromRootViewController: rootViewController)
-            } else {
+
+            guard let rootViewController = self.getRootViewController() else {
+                print("MetaAds: Failed to get root view controller")
                 callback(false, nil)
+                return
             }
+
+            // Create and store delegate to prevent deallocation
+            self.rewardedVideoShowDelegate = RewardedVideoShowDelegate(callback: callback)
+            self.rewardedVideoAd?.delegate = self.rewardedVideoShowDelegate
+            rewardedVideoAd.show(fromRootViewController: rootViewController)
         }
     }
     
@@ -91,18 +121,26 @@ import FBAudienceNetwork
             callback(false, "Meta Audience Network not initialized")
             return
         }
-        
+
+        // Validate placement ID
+        guard !placementId.isEmpty else {
+            callback(false, "Placement ID cannot be empty")
+            return
+        }
+
         DispatchQueue.main.async {
             print("MetaAds: Loading interstitial with placement ID: \(placementId)")
-            
+
             self.interstitialAd = FBInterstitialAd(placementID: placementId)
-            
+
             guard let interstitialAd = self.interstitialAd else {
                 callback(false, "Failed to create interstitial ad")
                 return
             }
-            
-            interstitialAd.delegate = InterstitialAdDelegate(callback: callback)
+
+            // Create and store delegate to prevent deallocation
+            self.interstitialLoadDelegate = InterstitialAdDelegate(callback: callback)
+            interstitialAd.delegate = self.interstitialLoadDelegate
             interstitialAd.load()
         }
     }
@@ -112,17 +150,20 @@ import FBAudienceNetwork
             callback(false)
             return
         }
-        
+
         DispatchQueue.main.async {
             print("MetaAds: Showing interstitial")
-            
-            if let rootViewController = self.getRootViewController() {
-                let showDelegate = InterstitialShowDelegate(callback: callback)
-                self.interstitialAd?.delegate = showDelegate
-                interstitialAd.show(fromRootViewController: rootViewController)
-            } else {
+
+            guard let rootViewController = self.getRootViewController() else {
+                print("MetaAds: Failed to get root view controller")
                 callback(false)
+                return
             }
+
+            // Create and store delegate to prevent deallocation
+            self.interstitialShowDelegate = InterstitialShowDelegate(callback: callback)
+            self.interstitialAd?.delegate = self.interstitialShowDelegate
+            interstitialAd.show(fromRootViewController: rootViewController)
         }
     }
     
@@ -136,6 +177,18 @@ import FBAudienceNetwork
     }
     
     @objc public func addTestDevice(deviceId: String) {
+        // Validate device ID
+        guard !deviceId.isEmpty else {
+            print("MetaAds: Device ID cannot be empty")
+            return
+        }
+
+        // Avoid duplicate device IDs
+        guard !testDevices.contains(deviceId) else {
+            print("MetaAds: Device ID already added: \(deviceId)")
+            return
+        }
+
         print("MetaAds: Adding test device: \(deviceId)")
         testDevices.append(deviceId)
         if isInitialized {
@@ -214,7 +267,16 @@ private class RewardedVideoShowDelegate: NSObject, FBRewardedVideoAdDelegate {
     
     func rewardedVideoAdVideoComplete(_ rewardedVideoAd: FBRewardedVideoAd) {
         print("MetaAds: Rewarded video completed - reward earned")
-        let reward = ["type": "coins", "amount": 1] as [String: Any]
+
+        // Get real reward data from Meta SDK
+        // Note: Meta Audience Network doesn't provide specific reward data in the callback
+        // The reward is typically configured in the Meta dashboard
+        // We provide a generic reward structure that matches the TypeScript interface
+        let reward = [
+            "type": "reward", // Generic type as Meta doesn't specify
+            "amount": 1       // Standard amount for completion
+        ] as [String: Any]
+
         callback(true, reward)
     }
     

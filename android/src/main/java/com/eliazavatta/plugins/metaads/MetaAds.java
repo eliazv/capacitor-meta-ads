@@ -51,6 +51,19 @@ public class MetaAds {
     }
 
     public void initialize(Context context, String appId, boolean testMode, InitializationCallback callback) {
+        // Validate inputs
+        if (appId == null || appId.trim().isEmpty()) {
+            callback.onError("App ID cannot be null or empty");
+            return;
+        }
+
+        // Prevent multiple initializations
+        if (isInitialized) {
+            Log.d(TAG, "Already initialized");
+            callback.onSuccess();
+            return;
+        }
+
         try {
             Log.d(TAG, "Initializing Meta Audience Network with App ID: " + appId);
 
@@ -81,6 +94,12 @@ public class MetaAds {
     public void loadRewardedVideo(Context context, String placementId, AdLoadCallback callback) {
         if (!isInitialized) {
             callback.onError("Meta Audience Network not initialized");
+            return;
+        }
+
+        // Validate placement ID
+        if (placementId == null || placementId.trim().isEmpty()) {
+            callback.onError("Placement ID cannot be null or empty");
             return;
         }
 
@@ -177,6 +196,12 @@ public class MetaAds {
             return;
         }
 
+        // Validate placement ID
+        if (placementId == null || placementId.trim().isEmpty()) {
+            callback.onError("Placement ID cannot be null or empty");
+            return;
+        }
+
         try {
             Log.d(TAG, "Loading interstitial with placement ID: " + placementId);
 
@@ -266,6 +291,18 @@ public class MetaAds {
     }
 
     public void addTestDevice(String deviceId) {
+        // Validate device ID
+        if (deviceId == null || deviceId.trim().isEmpty()) {
+            Log.w(TAG, "Device ID cannot be null or empty");
+            return;
+        }
+
+        // Avoid duplicate device IDs
+        if (testDevices.contains(deviceId)) {
+            Log.d(TAG, "Device ID already added: " + deviceId);
+            return;
+        }
+
         Log.d(TAG, "Adding test device: " + deviceId);
         testDevices.add(deviceId);
         if (isInitialized) {
