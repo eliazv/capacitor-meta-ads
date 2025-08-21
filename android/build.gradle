@@ -36,6 +36,22 @@ android {
     lintOptions {
         abortOnError false
     }
+
+    // Disable annotation extraction tasks that cause build issues in plugin development
+    tasks.whenTaskAdded { task ->
+        if (task.name.contains("extractAnnotations")) {
+            task.enabled = false
+        }
+    }
+
+    // Alternative approach to disable annotation tasks
+    afterEvaluate {
+        tasks.findAll { task ->
+            task.name.contains("extractAnnotations")
+        }.each { task ->
+            task.enabled = false
+        }
+    }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_21
         targetCompatibility JavaVersion.VERSION_21
@@ -48,13 +64,22 @@ repositories {
 }
 
 
+
+
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation project(':capacitor-android')
+
+    // Use Capacitor from Maven instead of project dependency for standalone builds
+    if (project.findProject(':capacitor-android') != null) {
+        implementation project(':capacitor-android')
+    } else {
+        implementation 'com.capacitorjs:core:6.1.2'
+    }
+
     implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
 
-    // Meta Audience Network SDK
-    implementation 'com.facebook.android:audience-network-sdk:6.17.0'
+    // Meta Audience Network SDK - Updated to latest version
+    implementation 'com.facebook.android:audience-network-sdk:6.20.0'
 
     testImplementation "junit:junit:$junitVersion"
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"

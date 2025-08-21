@@ -22,6 +22,10 @@ public class MetaAds {
     private boolean isInitialized = false;
     private List<String> testDevices = new ArrayList<>();
 
+    // Store callbacks for show events
+    private RewardedVideoCallback currentRewardedCallback;
+    private InterstitialCallback currentInterstitialCallback;
+
     // Callback interfaces
     public interface InitializationCallback {
         void onSuccess();
@@ -88,8 +92,14 @@ public class MetaAds {
             RewardedVideoAdListener rewardedVideoAdListener = new RewardedVideoAdListener() {
                 @Override
                 public void onError(Ad ad, AdError adError) {
-                    Log.e(TAG, "Rewarded video failed to load: " + adError.getErrorMessage());
-                    callback.onError("Failed to load rewarded video: " + adError.getErrorMessage());
+                    Log.e(TAG, "Rewarded video error: " + adError.getErrorMessage());
+                    // Handle both load and show errors
+                    if (currentRewardedCallback != null) {
+                        currentRewardedCallback.onError("Error with rewarded video: " + adError.getErrorMessage());
+                        currentRewardedCallback = null;
+                    } else {
+                        callback.onError("Failed to load rewarded video: " + adError.getErrorMessage());
+                    }
                 }
 
                 @Override
@@ -106,16 +116,27 @@ public class MetaAds {
                 @Override
                 public void onLoggingImpression(Ad ad) {
                     Log.d(TAG, "Rewarded video impression logged");
+                    if (currentRewardedCallback != null) {
+                        currentRewardedCallback.onAdShown();
+                    }
                 }
 
                 @Override
                 public void onRewardedVideoCompleted() {
-                    Log.d(TAG, "Rewarded video completed");
+                    Log.d(TAG, "Rewarded video completed - reward earned");
+                    if (currentRewardedCallback != null) {
+                        currentRewardedCallback.onRewardEarned("coins", 1);
+                        currentRewardedCallback = null;
+                    }
                 }
 
                 @Override
                 public void onRewardedVideoClosed() {
                     Log.d(TAG, "Rewarded video closed");
+                    if (currentRewardedCallback != null) {
+                        currentRewardedCallback.onAdClosed();
+                        currentRewardedCallback = null;
+                    }
                 }
             };
 
@@ -135,45 +156,13 @@ public class MetaAds {
         try {
             Log.d(TAG, "Showing rewarded video");
 
-            RewardedVideoAdListener showListener = new RewardedVideoAdListener() {
-                @Override
-                public void onError(Ad ad, AdError adError) {
-                    Log.e(TAG, "Error showing rewarded video: " + adError.getErrorMessage());
-                    callback.onError("Error showing rewarded video: " + adError.getErrorMessage());
-                }
-
-                @Override
-                public void onAdLoaded(Ad ad) {
-                    // Not called during show
-                }
-
-                @Override
-                public void onAdClicked(Ad ad) {
-                    Log.d(TAG, "Rewarded video clicked during show");
-                }
-
-                @Override
-                public void onLoggingImpression(Ad ad) {
-                    Log.d(TAG, "Rewarded video shown");
-                    callback.onAdShown();
-                }
-
-                @Override
-                public void onRewardedVideoCompleted() {
-                    Log.d(TAG, "Rewarded video completed - reward earned");
-                    callback.onRewardEarned("coins", 1); // Default reward
-                }
-
-                @Override
-                public void onRewardedVideoClosed() {
-                    Log.d(TAG, "Rewarded video closed");
-                    callback.onAdClosed();
-                }
-            };
+            // Store callback for the unified listener to use
+            currentRewardedCallback = callback;
 
             rewardedVideoAd.show();
         } catch (Exception e) {
             Log.e(TAG, "Error showing rewarded video", e);
+            currentRewardedCallback = null;
             callback.onError("Error showing rewarded video: " + e.getMessage());
         }
     }
@@ -196,8 +185,14 @@ public class MetaAds {
             InterstitialAdListener interstitialAdListener = new InterstitialAdListener() {
                 @Override
                 public void onError(Ad ad, AdError adError) {
-                    Log.e(TAG, "Interstitial failed to load: " + adError.getErrorMessage());
-                    callback.onError("Failed to load interstitial: " + adError.getErrorMessage());
+                    Log.e(TAG, "Interstitial error: " + adError.getErrorMessage());
+                    // Handle both load and show errors
+                    if (currentInterstitialCallback != null) {
+                        currentInterstitialCallback.onError("Error with interstitial: " + adError.getErrorMessage());
+                        currentInterstitialCallback = null;
+                    } else {
+                        callback.onError("Failed to load interstitial: " + adError.getErrorMessage());
+                    }
                 }
 
                 @Override
@@ -214,6 +209,9 @@ public class MetaAds {
                 @Override
                 public void onLoggingImpression(Ad ad) {
                     Log.d(TAG, "Interstitial impression logged");
+                    if (currentInterstitialCallback != null) {
+                        currentInterstitialCallback.onAdShown();
+                    }
                 }
 
                 @Override
@@ -224,6 +222,10 @@ public class MetaAds {
                 @Override
                 public void onInterstitialDismissed(Ad ad) {
                     Log.d(TAG, "Interstitial dismissed");
+                    if (currentInterstitialCallback != null) {
+                        currentInterstitialCallback.onAdClosed();
+                        currentInterstitialCallback = null;
+                    }
                 }
             };
 
@@ -243,44 +245,13 @@ public class MetaAds {
         try {
             Log.d(TAG, "Showing interstitial");
 
-            InterstitialAdListener showListener = new InterstitialAdListener() {
-                @Override
-                public void onError(Ad ad, AdError adError) {
-                    Log.e(TAG, "Error showing interstitial: " + adError.getErrorMessage());
-                    callback.onError("Error showing interstitial: " + adError.getErrorMessage());
-                }
-
-                @Override
-                public void onAdLoaded(Ad ad) {
-                    // Not called during show
-                }
-
-                @Override
-                public void onAdClicked(Ad ad) {
-                    Log.d(TAG, "Interstitial clicked during show");
-                }
-
-                @Override
-                public void onLoggingImpression(Ad ad) {
-                    Log.d(TAG, "Interstitial shown");
-                    callback.onAdShown();
-                }
-
-                @Override
-                public void onInterstitialDisplayed(Ad ad) {
-                    Log.d(TAG, "Interstitial displayed");
-                }
-
-                @Override
-                public void onInterstitialDismissed(Ad ad) {
-                    Log.d(TAG, "Interstitial dismissed");
-                    callback.onAdClosed();
-                }
-            };
+            // Store callback for the unified listener to use
+            currentInterstitialCallback = callback;
 
             interstitialAd.show();
         } catch (Exception e) {
             Log.e(TAG, "Error showing interstitial", e);
+            currentInterstitialCallback = null;
             callback.onError("Error showing interstitial: " + e.getMessage());
         }
     }

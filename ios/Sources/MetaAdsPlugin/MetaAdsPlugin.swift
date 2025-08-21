@@ -65,7 +65,8 @@ public class MetaAdsPlugin: CAPPlugin, CAPBridgedPlugin {
     }
     
     @objc func isRewardedVideoLoaded(_ call: CAPPluginCall) {
-        call.resolve(["loaded": false])
+        let loaded = implementation.isRewardedVideoLoaded()
+        call.resolve(["loaded": loaded])
     }
     
     @objc func loadInterstitial(_ call: CAPPluginCall) {
@@ -90,7 +91,8 @@ public class MetaAdsPlugin: CAPPlugin, CAPBridgedPlugin {
     }
     
     @objc func isInterstitialLoaded(_ call: CAPPluginCall) {
-        call.resolve(["loaded": false])
+        let loaded = implementation.isInterstitialLoaded()
+        call.resolve(["loaded": loaded])
     }
     
     @objc func setTestMode(_ call: CAPPluginCall) {

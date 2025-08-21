@@ -72,7 +72,7 @@ import FBAudienceNetwork
         DispatchQueue.main.async {
             print("MetaAds: Showing rewarded video")
             
-            if let rootViewController = UIApplication.shared.windows.first?.rootViewController {
+            if let rootViewController = self.getRootViewController() {
                 let showDelegate = RewardedVideoShowDelegate(callback: callback)
                 self.rewardedVideoAd?.delegate = showDelegate
                 rewardedVideoAd.show(fromRootViewController: rootViewController)
@@ -116,7 +116,7 @@ import FBAudienceNetwork
         DispatchQueue.main.async {
             print("MetaAds: Showing interstitial")
             
-            if let rootViewController = UIApplication.shared.windows.first?.rootViewController {
+            if let rootViewController = self.getRootViewController() {
                 let showDelegate = InterstitialShowDelegate(callback: callback)
                 self.interstitialAd?.delegate = showDelegate
                 interstitialAd.show(fromRootViewController: rootViewController)
@@ -140,6 +140,22 @@ import FBAudienceNetwork
         testDevices.append(deviceId)
         if isInitialized {
             FBAdSettings.addTestDevice(deviceId)
+        }
+    }
+
+    // MARK: - Helper Methods
+
+    private func getRootViewController() -> UIViewController? {
+        if #available(iOS 13.0, *) {
+            // Use the new scene-based approach for iOS 13+
+            guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                  let window = windowScene.windows.first else {
+                return nil
+            }
+            return window.rootViewController
+        } else {
+            // Fallback for iOS 12 and earlier
+            return UIApplication.shared.keyWindow?.rootViewController
         }
     }
 }
